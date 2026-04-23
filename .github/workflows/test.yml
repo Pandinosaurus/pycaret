@@ -1,165 +1,26 @@
-name: pytest on push
+name: pycaret (master, dormant)
 
-on: [push, pull_request]
+# PyCaret 3.x (master) is in maintenance-only mode while 4.0 is being
+# built on the `v4` branch. The 3.x CI was failing daily against modern
+# Python / scikit-learn / NumPy because the codebase predates those
+# releases — that's one of the problems 4.0 is here to solve.
+#
+# This workflow is intentionally set to `workflow_dispatch` only so it
+# stops spamming the Actions tab with red runs. The maintainer can
+# still trigger it by hand if they want to revisit a 3.x regression.
+#
+# For the active v4 CI, see: https://github.com/pycaret/pycaret/actions/workflows/test.yml?query=branch%3Av4
+
+on:
+  workflow_dispatch:
 
 jobs:
-  # JOBS MUST START WITH test !!!!
-  test:
-
+  noop:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
-
+    name: 3.x CI disabled (see v4 branch)
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -U pytest
-        python -m pip install codecov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-optional.txt ]; then pip install -r requirements-optional.txt; fi
-        python -m spacy download en
-    - name: Remove tests
-      run: |
-        rm pycaret/tests/test_classification_tuning.py
-        rm pycaret/tests/test_classification_plots.py
-        rm pycaret/tests/test_regression_plots.py
-        rm pycaret/tests/test_regression_tuning.py
-    - name: Test with pytest
-      run: |
-        pytest
-
-  test_windows:
-
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -U pytest
-        python -m pip install codecov
-        pip install -r requirements.txt
-        pip install -r requirements-optional.txt
-        python -m spacy download en
-    - name: Remove tests
-      run: |
-        remove-item pycaret/tests/* -Include @('test_classification_tuning.py','test_classification_plots.py','test_regression_plots.py', 'test_regression_tuning.py')
-    - name: Test with pytest
-      run: |
-        pytest
-
-  # test_tuning:
-
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.8
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.8
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       python -m pip install -U pytest
-  #       python -m pip install codecov
-  #       if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-  #       if [ -f requirements-optional.txt ]; then pip install -r requirements-optional.txt; fi
-  #       python -m pip install hpbandster ConfigSpace
-  #       python -m spacy download en
-  #   - name: Remove tests
-  #     run: |
-  #       find pycaret/tests -type f -not -name '__init__.py' -not -name 'test_classification_tuning.py' -not -name 'test_regression_tuning.py' -delete
-  #   - name: Test with pytest
-  #     run: |
-  #       pytest -o log_cli=true
-
-  # test_tuning_clf_windows:
-
-  #   runs-on: windows-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.8
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.8
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       python -m pip install -U pytest
-  #       python -m pip install codecov
-  #       pip install -r requirements.txt
-  #       pip install -r requirements-optional.txt
-  #       python -m spacy download en
-  #   - name: Remove tests
-  #     run: |
-  #       remove-item pycaret/tests/* -Exclude @('__init__.py','test_classification_tuning.py')
-  #   - name: Test with pytest
-  #     run: |
-  #       pytest -o log_cli=true
-
-  # test_tuning_reg_windows:
-
-  #   runs-on: windows-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.8
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.8
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       python -m pip install -U pytest
-  #       python -m pip install codecov
-  #       pip install -r requirements.txt
-  #       pip install -r requirements-optional.txt
-  #       python -m spacy download en
-  #   - name: Remove tests
-  #     run: |
-  #       remove-item pycaret/tests/* -Exclude @('__init__.py','test_regression_tuning.py')
-  #   - name: Test with pytest
-  #     run: |
-  #       pytest -o log_cli=true
-
-  test_plots:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -U pytest
-        python -m pip install codecov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-optional.txt ]; then pip install -r requirements-optional.txt; fi
-        python -m spacy download en
-    - name: Remove tests
-      run: |
-        find pycaret/tests -type f -not -name '__init__.py' -not -name 'test_classification_plots.py' -not -name 'test_regression_plots.py' -delete
-    - name: Test with pytest
-      run: |
-        pytest -o log_cli=true
+      - name: Remind where CI has moved
+        run: |
+          echo "PyCaret 3.x CI is dormant. Active CI runs on the v4 branch."
+          echo "  - v4 branch:  https://github.com/pycaret/pycaret/tree/v4"
+          echo "  - v4 actions: https://github.com/pycaret/pycaret/actions?query=branch%3Av4"

@@ -1,0 +1,25 @@
+name: Mark stale issues and pull requests
+
+# Workflow was invalid (no `on:` trigger) and failed on every push. Switched
+# to workflow_dispatch-only while the 4.0 revamp is in flight — the
+# maintainer sweeps stale issues manually from the 4.0 triage queue.
+on:
+  workflow_dispatch:
+
+jobs:
+  stale:
+
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/stale@v9
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: 'Stale issue message: This issue will be automatically closed by GitHub Actions in 1 week if there is no further activity.'
+        stale-pr-message: 'Stale pull request message: This PR will be automatically closed by GitHub Actions in 1 week if there is no further activity.'
+        stale-issue-label: 'no-issue-activity'
+        stale-pr-label: 'no-pr-activity'
+        exempt-issue-labels: 'bug,enhancement,help wanted'
